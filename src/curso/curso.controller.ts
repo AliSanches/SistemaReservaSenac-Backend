@@ -43,8 +43,24 @@ export class CursoController {
   }
 
   @Get()
-  findAll() {
-    return this.cursoService.findAll();
+  async findAll(@Res() res: Response) {
+    try {
+      const retorno = await this.cursoService.findAll();
+
+      if (retorno) {
+        return res.status(200).json({
+          retorno,
+        });
+      } else if (retorno) {
+        return res.status(400).json({
+          message: 'Não foi possivel carregar os dados',
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        message: 'Erro interno no servidor',
+      });
+    }
   }
 
   @Get(':id')

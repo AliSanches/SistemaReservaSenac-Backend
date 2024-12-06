@@ -17,10 +17,11 @@ export class CursoService {
   }
 
   async findAll() {
-    await this.prisma.curso.findMany({
+    return await this.prisma.curso.findMany({
       orderBy: {
         nome: 'asc',
       },
+      take: 6,
     });
   }
 
