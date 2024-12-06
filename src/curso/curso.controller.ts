@@ -6,7 +6,9 @@ import {
   Put,
   Param,
   Delete,
+  Res,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { CursoService } from './curso.service';
 import { CreateCursoDto } from './dto/create-curso.dto';
 import { UpdateCursoDto } from './dto/update-curso.dto';
@@ -16,8 +18,28 @@ export class CursoController {
   constructor(private readonly cursoService: CursoService) {}
 
   @Post()
-  create(@Body() createCursoDto: CreateCursoDto) {
-    return this.cursoService.create(createCursoDto);
+  create(
+    @Body() createCursoDto: { data: CreateCursoDto },
+    @Res() res: Response,
+  ) {
+    try {
+      const retorno = this.cursoService.create(createCursoDto.data);
+
+      if (retorno) {
+        return res.status(201).json({
+          message: 'Curso Cadastrado',
+          data: retorno,
+        });
+      } else {
+        return res.status(400).json({
+          message: 'Não foi possivel criar o curso',
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        message: 'Erro interno no servidor',
+      });
+    }
   }
 
   @Get()
