@@ -69,8 +69,30 @@ export class CursoController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateCursoDto: UpdateCursoDto) {
-    return this.cursoService.update(+id, updateCursoDto);
+  async update(
+    @Param('id') id: number,
+    @Body() updateCursoDto: { data: UpdateCursoDto },
+    @Res() res: Response,
+  ) {
+    console.log(updateCursoDto);
+
+    try {
+      const retorno = this.cursoService.update(+id, updateCursoDto.data);
+
+      if (retorno) {
+        return res.status(201).json({
+          message: 'Curso Atualizado',
+        });
+      } else {
+        return res.status(400).json({
+          message: 'Não foi possivel atualizar o curso',
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        message: 'Erro interno no servidor',
+      });
+    }
   }
 
   @Delete(':id')

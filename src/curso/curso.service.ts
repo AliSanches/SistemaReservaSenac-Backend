@@ -29,7 +29,7 @@ export class CursoService {
     return `This action returns a #${id} curso`;
   }
 
-  async update(id: number, updateCursoDto: UpdateCursoDto) {
+  async update(id: number, updateCursoDto: UpdateCursoDto): Promise<void> {
     await this.prisma.curso.update({
       where: {
         id: id,
