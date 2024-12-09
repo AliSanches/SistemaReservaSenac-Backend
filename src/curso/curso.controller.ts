@@ -12,6 +12,7 @@ import { Response } from 'express';
 import { CursoService } from './curso.service';
 import { CreateCursoDto } from './dto/create-curso.dto';
 import { UpdateCursoDto } from './dto/update-curso.dto';
+import { Paginacao } from './dto/findSkip-curso.dto';
 
 @Controller('curso')
 export class CursoController {
@@ -63,9 +64,28 @@ export class CursoController {
     }
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.cursoService.findOne(+id);
+  @Get()
+  async findSkip(@Body() qtdSkip: { data: Paginacao }, @Res() res: Response) {
+    try {
+      // const skip = qtdSkip.skip
+      // const take = qtdSkip.take
+
+      const retorno = await this.cursoService.findSkip(qtdSkip.data);
+
+      if (retorno) {
+        return res.status(200).json({
+          retorno,
+        });
+      } else if (retorno) {
+        return res.status(400).json({
+          message: 'Não foi possivel carregar os dados',
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        message: 'Erro interno no servidor',
+      });
+    }
   }
 
   @Put(':id')

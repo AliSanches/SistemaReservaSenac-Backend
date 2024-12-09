@@ -25,8 +25,11 @@ export class CursoService {
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} curso`;
+  async findSkip(skip: number, take: number) {
+    return await this.prisma.curso.findMany({
+      skip: skip,
+      take: take,
+    });
   }
 
   async update(id: number, updateCursoDto: UpdateCursoDto): Promise<void> {
