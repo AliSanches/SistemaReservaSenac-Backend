@@ -69,13 +69,11 @@ export class CursoController {
   }
 
   @Put(':id')
-  async update(
+  update(
     @Param('id') id: number,
     @Body() updateCursoDto: { data: UpdateCursoDto },
     @Res() res: Response,
   ) {
-    console.log(updateCursoDto);
-
     try {
       const retorno = this.cursoService.update(+id, updateCursoDto.data);
 
@@ -96,7 +94,23 @@ export class CursoController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.cursoService.remove(+id);
+  remove(@Param('id') id: number, @Res() res: Response) {
+    try {
+      const retorno = this.cursoService.remove(+id);
+
+      if (retorno) {
+        return res.status(201).json({
+          message: 'Curso Deletado',
+        });
+      } else {
+        return res.status(400).json({
+          message: 'Não foi possivel deletar o curso',
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        message: 'Erro interno no servidor',
+      });
+    }
   }
 }
