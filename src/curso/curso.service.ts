@@ -16,20 +16,18 @@ export class CursoService {
     });
   }
 
-  async findAll() {
-    return await this.prisma.curso.findMany({
+  async findAll(skip: number) {
+    const curso = await this.prisma.curso.findMany({
       orderBy: {
         nome: 'asc',
       },
       take: 6,
-    });
-  }
-
-  async findSkip(skip: number, take: number) {
-    return await this.prisma.curso.findMany({
       skip: skip,
-      take: take,
     });
+
+    const count = await this.prisma.curso.count({});
+
+    return { curso, count };
   }
 
   async update(id: number, updateCursoDto: UpdateCursoDto): Promise<void> {
