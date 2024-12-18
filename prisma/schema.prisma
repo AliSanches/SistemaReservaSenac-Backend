@@ -13,3 +13,13 @@ model curso {
     nome                  String
     categoria             String
 }
+
+model user {
+  id          Int          @id @default(autoincrement())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now()) @updatedAt
+  enabled     Boolean      @default(true)
+  nome        String       @db.Text
+  email       String       @unique @db.VarChar(50)
+  senha       String       @db.Text
+}

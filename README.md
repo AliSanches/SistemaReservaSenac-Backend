@@ -10,6 +10,9 @@
 - TypeScript
 - Express
 - Prisma ORM
+- Jsonwebtoken
+- Bcrypt
+- Dotenv
 
 ## Como utilizar
 
