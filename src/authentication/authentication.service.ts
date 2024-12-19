@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/database/Prisma.service';
 import { AuthenticateUser } from './dto/authenticate.dto';
-import jwt from 'jsonwebtoken';
-import { hash } from 'crypto';
+import * as jwt from 'jsonwebtoken';
+import * as bcrypt from 'bcrypt';
 
 const key = process.env.SECRETY_KEY;
 
@@ -17,14 +17,14 @@ export class AuthenticateService {
       },
     });
 
-    const passwdHash = hash(data.password, '8');
+    const compare = await bcrypt.compare(data.password, mail.senha);
 
-    console.log(passwdHash);
-
-    if (mail?.senha === data.password && data.password === passwdHash) {
-      const token = jwt.sign({ mail, key });
+    if (compare) {
+      const token = jwt.sign({ mail }, key);
 
       return { mail, token };
+    } else {
+      return null;
     }
   }
 }

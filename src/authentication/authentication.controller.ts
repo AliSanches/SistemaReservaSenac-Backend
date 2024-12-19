@@ -8,6 +8,7 @@ import {
   Delete,
   Res,
   Query,
+  Redirect,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthenticateUser } from './dto/authenticate.dto';
@@ -18,29 +19,36 @@ export class AuthenticateController {
   constructor(private readonly user: AuthenticateService) {}
 
   @Post()
-  authentication(
+  async authentication(
     @Body() user: { data: AuthenticateUser },
     @Res() res: Response,
   ) {
     try {
-      const retorno = this.user.authenticate(user.data);
-
-      console.log(retorno);
+      const retorno = await this.user.authenticate(user.data);
 
       if (retorno) {
-        return res.status(201).json({
-          message: 'Usuário Autenticado',
-          data: retorno,
-        });
+        return res
+          .status(200)
+          .json({
+            message: 'Usuário Autenticado',
+            data: retorno,
+          })
+          .redirect('/app/home');
       } else {
-        return res.status(400).json({
-          message: 'Não foi possivel criar o curso',
-        });
+        return res
+          .status(400)
+          .json({
+            message: 'Não foi possivel autenticar o usuário',
+          })
+          .redirect('/app');
       }
     } catch (error) {
-      return res.status(500).json({
-        message: 'Erro interno no servidor',
-      });
+      return res
+        .status(500)
+        .json({
+          message: 'Erro interno no servidor',
+        })
+        .redirect('/app');
     }
   }
 }
