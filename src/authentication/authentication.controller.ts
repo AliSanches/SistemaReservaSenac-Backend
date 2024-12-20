@@ -27,28 +27,19 @@ export class AuthenticateController {
       const retorno = await this.user.authenticate(user.data);
 
       if (retorno) {
-        return res
-          .status(200)
-          .json({
-            message: 'Usuário Autenticado',
-            data: retorno,
-          })
-          .redirect('/app/home');
+        return res.status(200).json({
+          message: 'Usuário Autenticado',
+          data: retorno,
+        });
       } else {
-        return res
-          .status(400)
-          .json({
-            message: 'Não foi possivel autenticar o usuário',
-          })
-          .redirect('/app');
+        return res.status(400).json({
+          message: 'Não foi possivel autenticar o usuário',
+        });
       }
     } catch (error) {
-      return res
-        .status(500)
-        .json({
-          message: 'Erro interno no servidor',
-        })
-        .redirect('/app');
+      return res.status(500).json({
+        message: 'Erro interno no servidor',
+      });
     }
   }
 }
