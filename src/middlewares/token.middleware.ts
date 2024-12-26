@@ -12,16 +12,17 @@ export class LoggerMiddleware implements NestMiddleware {
         const header = req.headers['authorization'];
 
         if (!header) {
-          return res.redirect('/');
+          return res.status(401).json({ message: 'Token JWT não fornecido!' });
         }
 
         const token = header.split(' ')[1];
-        const decoded = jwt.verify(token, key);
+
+        const decoded = jwt.verify(token, process.env.SECRETY_KEY);
         req.body.id = decoded;
 
-        return next();
-      } catch (err) {
-        return res.redirect('/');
+        next();
+      } catch {
+        res.status(401).json('Unauthorized request');
       }
     }
   }
