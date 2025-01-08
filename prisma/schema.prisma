@@ -12,6 +12,18 @@ model curso {
     id                    Int @id @default(autoincrement())
     nome                  String
     categoria             String
+    turma                 turma[]
+}
+
+model turma {
+  id          Int          @id @default(autoincrement())
+  idCurso     Int     
+  cursos      curso        @relation(fields: [idCurso], references: [id])
+  turma       Int          
+  dataInicio  String       @db.Text
+  dataFinal   String       @db.Text
+  entrada     String       @db.Text
+  saida       String       @db.Text
 }
 
 model user {
