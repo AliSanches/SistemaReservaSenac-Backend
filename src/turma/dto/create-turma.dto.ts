@@ -1,5 +1,5 @@
 export class CreateTurmaDto {
-  curso: number;
+  idCurso: number;
   turma: number;
   dataInicio: string;
   dataFinal: string;

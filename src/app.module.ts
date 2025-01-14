@@ -5,10 +5,11 @@ import { LoggerMiddleware } from './middlewares/token.middleware';
 import { TurmaModule } from './turma/turma.module';
 
 @Module({
-  imports: [CursoModule, AuthenticateUser, TurmaModule],
+  imports: [AuthenticateUser, CursoModule, TurmaModule],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('curso');
+    consumer.apply(LoggerMiddleware).forRoutes('curso'),
+      consumer.apply(LoggerMiddleware).forRoutes('turma');
   }
 }

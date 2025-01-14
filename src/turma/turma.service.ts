@@ -8,10 +8,13 @@ export class TurmaService {
   constructor(private prisma: PrismaService) {}
 
   async create(createTurmaDto: CreateTurmaDto) {
+    const convertIdCurso = Number(createTurmaDto.idCurso);
+    const convertTurma = Number(createTurmaDto.turma);
+
     await this.prisma.turma.create({
       data: {
-        idCurso: createTurmaDto.curso,
-        turma: createTurmaDto.turma,
+        idCurso: convertIdCurso,
+        turma: convertTurma,
         dataInicio: createTurmaDto.dataInicio,
         dataFinal: createTurmaDto.dataFinal,
         entrada: createTurmaDto.entrada,
@@ -25,6 +28,9 @@ export class TurmaService {
       orderBy: {
         turma: 'asc',
       },
+      include: {
+        cursos: true,
+      },
       take: 6,
       skip: skip,
     });
@@ -35,13 +41,16 @@ export class TurmaService {
   }
 
   async update(id: number, updateTurmaDto: UpdateTurmaDto): Promise<void> {
+    const convertIdCurso = Number(updateTurmaDto.idCurso);
+    const convertTurma = Number(updateTurmaDto.turma);
+
     await this.prisma.turma.update({
       where: {
         id: id,
       },
       data: {
-        idCurso: updateTurmaDto.curso,
-        turma: updateTurmaDto.turma,
+        idCurso: convertIdCurso,
+        turma: convertTurma,
         dataInicio: updateTurmaDto.dataInicio,
         dataFinal: updateTurmaDto.dataFinal,
         entrada: updateTurmaDto.entrada,
@@ -51,9 +60,11 @@ export class TurmaService {
   }
 
   async remove(id: number) {
+    const converTurma = Number(id);
+
     await this.prisma.turma.delete({
       where: {
-        id: id,
+        id: converTurma,
       },
     });
   }
