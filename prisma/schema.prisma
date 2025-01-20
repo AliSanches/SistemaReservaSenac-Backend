@@ -13,6 +13,7 @@ model curso {
     nome                  String
     categoria             String
     turma                 turma[]
+    sala                  sala[]
 }
 
 model turma {
@@ -24,6 +25,20 @@ model turma {
   dataFinal   String       @db.Text
   entrada     String       @db.Text
   saida       String       @db.Text
+  sala        sala[]
+}
+
+model sala {
+  id                    Int                 @id @default(autoincrement())
+  idCurso               Int     
+  cursos                curso               @relation(fields: [idCurso], references: [id])
+  idTurma               Int                 
+  turmas                turma               @relation(fields: [idTurma], references: [id])
+  numeroSala            Int
+  capacidade            Int
+  tipoSala              String              @db.Text
+  case                  String              @db.Text
+  comportaNotebook      String              @db.Text
 }
 
 model user {
