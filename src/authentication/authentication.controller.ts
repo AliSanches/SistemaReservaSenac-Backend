@@ -1,14 +1,8 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
-  Put,
-  Param,
-  Delete,
   Res,
-  Query,
-  Redirect,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthenticateUser } from './dto/authenticate.dto';
@@ -31,12 +25,14 @@ export class AuthenticateController {
           message: 'Usuário Autenticado',
           data: retorno,
         });
-      } else {
-        return res.status(400).json({
-          message: 'Não foi possivel autenticar o usuário',
-        });
       }
     } catch (error) {
+      if (error.message === "Usuário ou senha inválidos") {
+        return res.status(401).json({
+          message: "Usuário ou senha inválidos",
+        });
+      } 
+
       return res.status(500).json({
         message: 'Erro interno no servidor',
       });

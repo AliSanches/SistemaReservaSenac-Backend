@@ -7,6 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model file {
+    id                    Int @id @default(autoincrement())
+    fileName              String
+    contentLength         Decimal
+    contentType           String
+    url                   String
+}
 
 model curso {
     id                    Int @id @default(autoincrement())

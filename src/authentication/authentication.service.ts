@@ -17,14 +17,18 @@ export class AuthenticateService {
       },
     });
 
-    const compare = await bcrypt.compare(data.password, mail.senha);
-
-    if (compare) {
-      const token = jwt.sign({ mail }, key);
-
-      return { mail, token };
-    } else {
-      return null;
+    if (!mail) {
+      throw new Error('Usuário ou senha inválidos');
     }
+
+    const password = await bcrypt.compare(data.password, mail.senha);
+
+    if (!password) {
+      throw new Error('Usuário ou senha inválidos');
+    }
+
+    const token = jwt.sign({ mail }, key);
+
+    return { mail, token };
   }
 }
