@@ -8,12 +8,29 @@ export class CursoService {
   constructor(private prisma: PrismaService) {}
 
   async create(createCursoDto: CreateCursoDto) {
-    await this.prisma.curso.create({
+    const res = await this.prisma.curso.create({
       data: {
         nome: createCursoDto.nome,
         categoria: createCursoDto.categoria,
+        arquivo: createCursoDto.arquivo,
       },
     });
+    return res
+  }
+
+  async findOne(id: number) {
+    const curso = await this.prisma.curso.findUnique({
+      where: {
+        id: id
+      },
+      select: {
+        nome: true,
+        categoria: true,
+        arquivo: true
+      } 
+    });
+
+    return curso;
   }
 
   async findAll(skip: number) {
@@ -30,16 +47,18 @@ export class CursoService {
     return { curso, count };
   }
 
-  async update(id: number, updateCursoDto: UpdateCursoDto): Promise<void> {
-    await this.prisma.curso.update({
+  async update(updateCursoDto: UpdateCursoDto) {
+    const res = await this.prisma.curso.update({
       where: {
-        id: id,
+        id: updateCursoDto.id,
       },
       data: {
         nome: updateCursoDto.nome,
         categoria: updateCursoDto.categoria,
+        arquivo: updateCursoDto.arquivo,
       },
     });
+    return res;
   }
 
   async remove(id: number) {

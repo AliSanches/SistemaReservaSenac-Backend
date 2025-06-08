@@ -8,32 +8,48 @@ import {
   Delete,
   Res,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { CursoService } from './curso.service';
 import { CreateCursoDto } from './dto/create-curso.dto';
 import { UpdateCursoDto } from './dto/update-curso.dto';
+import { diskStorage } from 'multer';
+import { extname, join } from 'path';
+import { unlink } from 'fs';
 
 @Controller('curso')
 export class CursoController {
   constructor(private readonly cursoService: CursoService) {}
 
   @Post()
-  create(
-    @Body() createCursoDto: { data: CreateCursoDto },
+  @UseInterceptors(FileInterceptor('arquivo', {
+    storage: diskStorage({
+      destination: './uploads',
+      filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        const ext = extname(file.originalname);
+        cb(null, `${uniqueSuffix}${ext}`);
+      },
+    }),
+  }))
+  async create(
+    @Body() createCursoDto: CreateCursoDto,
+    @UploadedFile() file: Express.Multer.File,
     @Res() res: Response,
   ) {
     try {
-      const retorno = this.cursoService.create(createCursoDto.data);
-
+      const retorno = await this.cursoService.create({...createCursoDto, arquivo: file?.filename || null});
       if (retorno) {
         return res.status(201).json({
-          message: 'Curso Cadastrado',
+          message: 'Curso cadastrado',
           data: retorno,
         });
       } else {
         return res.status(400).json({
-          message: 'Não foi possivel criar o curso',
+          message: 'Não foi possível criar o curso',
         });
       }
     } catch (error) {
@@ -65,13 +81,31 @@ export class CursoController {
   }
 
   @Put(':id')
-  update(
-    @Param('id') id: number,
-    @Body() updateCursoDto: { data: UpdateCursoDto },
-    @Res() res: Response,
-  ) {
+   @UseInterceptors(FileInterceptor('arquivo', {
+    storage: diskStorage({
+      destination: './uploads',
+      filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        const ext = extname(file.originalname);
+        cb(null, `${uniqueSuffix}${ext}`);
+      },
+    }),
+  }))
+  async update(@Param('id') id: number, @Body() updateCursoDto: { data: UpdateCursoDto },@UploadedFile() file: Express.Multer.File, @Res() res: Response) {
     try {
-      const retorno = this.cursoService.update(+id, updateCursoDto.data);
+      const curso = await this.cursoService.findOne(+id);
+
+      if (curso.arquivo) {
+        const filePath = join(process.cwd(), 'uploads', curso.arquivo);
+        console.log(filePath)
+        unlink(filePath, (err) => {
+          if (err) {
+            console.error('Erro ao deletar o arquivo:', err);
+          } else {
+            console.log('Arquivo deletado com sucesso:', curso.arquivo);
+        }})}
+
+      const retorno = await this.cursoService.update({...updateCursoDto.data,  arquivo: file?.filename || null});
 
       if (retorno) {
         return res.status(201).json({
@@ -90,8 +124,20 @@ export class CursoController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: number, @Res() res: Response) {
+  async remove(@Param('id') id: number, @Res() res: Response) {
     try {
+      const curso = await this.cursoService.findOne(+id);
+
+      if (curso.arquivo) {
+        const filePath = join(process.cwd(), 'uploads', curso.arquivo);
+        console.log(filePath)
+        unlink(filePath, (err) => {
+          if (err) {
+            console.error('Erro ao deletar o arquivo:', err);
+          } else {
+            console.log('Arquivo deletado com sucesso:', curso.arquivo);
+        }})}
+
       const retorno = this.cursoService.remove(+id);
 
       if (retorno) {

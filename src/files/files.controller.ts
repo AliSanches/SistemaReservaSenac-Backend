@@ -15,7 +15,7 @@ export class FilesController {
 
   @Post()
   @UseInterceptors(FileInterceptor('arquivo'))
-  uploadFile(@UploadedFile() file: Express.Multer.File, @Req() req: Request) {
+  uploadFile(@UploadedFile() file: Express.Multer.File, @Req() req: Request | any) {
     console.log(file);
     try {
       this.filesService.salvarDados(file, req);

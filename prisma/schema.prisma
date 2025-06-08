@@ -19,8 +19,10 @@ model curso {
     id                    Int @id @default(autoincrement())
     nome                  String
     categoria             String
+    arquivo               String
     turma                 turma[]
     sala                  sala[]
+    reserva               reserva[]
 }
 
 model turma {
@@ -33,6 +35,7 @@ model turma {
   entrada     String       @db.Text
   saida       String       @db.Text
   sala        sala[]
+  reserva     reserva[]
 }
 
 model sala {
@@ -46,6 +49,18 @@ model sala {
   tipoSala              String              @db.Text
   case                  String              @db.Text
   comportaNotebook      String              @db.Text
+  reserva               reserva[]
+}
+
+model reserva {
+  id                    Int                 @id @default(autoincrement())
+  idCurso               Int
+  cursos                curso               @relation(fields: [idCurso], references: [id])
+  idTurma               Int
+  turmas                turma               @relation(fields: [idTurma], references: [id])
+  idSala                Int
+  salas                 sala                @relation(fields: [idSala], references: [id])
+  
 }
 
 model user {

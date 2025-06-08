@@ -18,5 +18,6 @@
 
 - Clone este repositório para sua máquina local
 - Com o projeto dentro do Visual Studio Code abra o projeto e o terminal
+- Execute o comando npx prisma db push
 - Com o terminal já aberto execute o seguinte comando " npm install " para instalar as dependências
 - Ainda no terminal execute " npm run start:dev " para iniciar seu servidor
