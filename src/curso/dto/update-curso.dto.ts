@@ -1,5 +1,5 @@
 export class UpdateCursoDto {
-  id: number;
+  id?: number;
   nome: string;
   categoria: string;
   arquivo?: string;

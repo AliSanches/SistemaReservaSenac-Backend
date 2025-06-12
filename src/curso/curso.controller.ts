@@ -103,9 +103,14 @@ export class CursoController {
             console.error('Erro ao deletar o arquivo:', err);
           } else {
             console.log('Arquivo deletado com sucesso:', curso.arquivo);
-        }})}
+        }})
+      }
 
-      const retorno = await this.cursoService.update({...updateCursoDto.data,  arquivo: file?.filename || null});
+      
+      console.log(updateCursoDto)
+
+      // Verificar a nova imagem 
+      const retorno = await this.cursoService.update({...updateCursoDto.data, arquivo: file?.filename || null});
 
       if (retorno) {
         return res.status(201).json({
@@ -136,9 +141,9 @@ export class CursoController {
             console.error('Erro ao deletar o arquivo:', err);
           } else {
             console.log('Arquivo deletado com sucesso:', curso.arquivo);
-        }})}
+      }})}
 
-      const retorno = this.cursoService.remove(+id);
+      const retorno = await this.cursoService.remove(+id);
 
       if (retorno) {
         return res.status(201).json({
