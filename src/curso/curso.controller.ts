@@ -97,12 +97,20 @@ export class CursoController {
 
       if (curso.arquivo) {
         const filePath = join(process.cwd(), 'uploads', curso.arquivo);
-        try {
-          await unlink(filePath);
-        } catch (err) {
-          console.log('Algo inesperado ocorreu!');
-        }
+        console.log(filePath)
+        unlink(filePath, (err) => {
+          if (err) {
+            console.error('Erro ao deletar o arquivo:', err);
+          } else {
+            console.log('Arquivo deletado com sucesso:', curso.arquivo);
+        }})
       }
+
+      
+      console.log(updateCursoDto)
+
+      // Verificar a nova imagem 
+      const retorno = await this.cursoService.update({...updateCursoDto.data, arquivo: file?.filename || null});
 
       const retorno = await this.cursoService.update({...updateCursoDto,  arquivo: file?.filename || null});
       
@@ -129,13 +137,15 @@ export class CursoController {
 
       if (curso.arquivo) {
         const filePath = join(process.cwd(), 'uploads', curso.arquivo);
-        try {
-          await unlink(filePath);
-        } catch (err) {
-          console.error('Erro ao deletar o arquivo', err);
-        }
+        console.log(filePath)
+        unlink(filePath, (err) => {
+          if (err) {
+            console.error('Erro ao deletar o arquivo:', err);
+          } else {
+            console.log('Arquivo deletado com sucesso:', curso.arquivo);
+      }})}
 
-      const retorno = this.cursoService.remove(+id);
+      const retorno = await this.cursoService.remove(+id);
 
       if (retorno) {
         return res.status(201).json({
@@ -147,6 +157,7 @@ export class CursoController {
         });
       }
     }
+  }
     } catch (error) {
       return res.status(500).json({
         message: 'Erro interno no servidor',

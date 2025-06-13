@@ -63,10 +63,12 @@ export class CursoService {
   }
 
   async remove(id: number) {
-    await this.prisma.curso.delete({
+    const response = await this.prisma.curso.delete({
       where: {
         id: id,
       },
     });
+
+    return response;
   }
 }
