@@ -1,9 +1,9 @@
 export class CreateSalaDto {
   idCurso: number;
   idTurma: number;
-  numeroSala: number;
-  capacidade: number;
+  numeroSala: string;
+  capacidade: string;
   tipoSala: string;
-  case: string;
+  caseArmario: string;
   comportaNotebook: string;
 }

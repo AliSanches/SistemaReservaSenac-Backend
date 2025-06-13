@@ -8,17 +8,18 @@ export class SalaService {
   constructor(private prisma: PrismaService) {}
 
   async create(createSalaDto: CreateSalaDto) {
-    const convertIdCurso = Number(createSalaDto.idCurso);
-    const convertIdTurma = Number(createSalaDto.idTurma);
+    const convertIdCurso = createSalaDto.idCurso ? Number(createSalaDto.idCurso) : null;
+    const convertIdTurma = createSalaDto.idTurma ? Number(createSalaDto.idTurma) : null;
 
     await this.prisma.sala.create({
       data: {
-        idCurso: convertIdCurso,
-        idTurma: convertIdTurma,
+        ...(convertIdCurso !== null && { idCurso: convertIdCurso }),
+        ...(convertIdTurma !== null && { idTurma: convertIdTurma }),
+        
         numeroSala: createSalaDto.numeroSala,
         capacidade: createSalaDto.capacidade,
         tipoSala: createSalaDto.tipoSala,
-        case: createSalaDto.case,
+        caseArmario: createSalaDto.caseArmario,
         comportaNotebook: createSalaDto.comportaNotebook,
       },
     });
@@ -31,6 +32,7 @@ export class SalaService {
       },
       include: {
         cursos: true,
+        turmas: true,
       },
       take: 6,
       skip: skip,
@@ -39,6 +41,18 @@ export class SalaService {
     const count = await this.prisma.sala.count({});
 
     return { sala, count };
+  }
+
+  async findAllTurmasRefCurso(id: number) {
+    const turma = await this.prisma.turma.findMany({
+      where: {
+        idCurso: id
+      }
+    });
+
+    const count = await this.prisma.sala.count({});
+
+    return { turma, count };
   }
 
   async update(id: number, updateSalaDto: UpdateSalaDto): Promise<void> {
@@ -55,7 +69,7 @@ export class SalaService {
         numeroSala: updateSalaDto.numeroSala,
         capacidade: updateSalaDto.capacidade,
         tipoSala: updateSalaDto.tipoSala,
-        case: updateSalaDto.case,
+        caseArmario: updateSalaDto.caseArmario,
         comportaNotebook: updateSalaDto.comportaNotebook,
       },
     });

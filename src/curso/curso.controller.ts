@@ -11,14 +11,14 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { Response } from 'express';
-import { CursoService } from './curso.service';
-import { CreateCursoDto } from './dto/create-curso.dto';
-import { UpdateCursoDto } from './dto/update-curso.dto';
-import { diskStorage } from 'multer';
-import { extname, join } from 'path';
-import { unlink } from 'fs';
+import { FileInterceptor }  from '@nestjs/platform-express';
+import { Response }         from 'express';
+import { CursoService }     from './curso.service';
+import { CreateCursoDto }   from './dto/create-curso.dto';
+import { UpdateCursoDto }   from './dto/update-curso.dto';
+import { diskStorage }      from 'multer';
+import { extname, join }    from 'path';
+import { unlink }           from 'fs/promises';
 
 @Controller('curso')
 export class CursoController {
@@ -91,22 +91,21 @@ export class CursoController {
       },
     }),
   }))
-  async update(@Param('id') id: number, @Body() updateCursoDto: { data: UpdateCursoDto },@UploadedFile() file: Express.Multer.File, @Res() res: Response) {
+  async update(@Param('id') id: number, @Body() updateCursoDto: UpdateCursoDto,@UploadedFile() file: Express.Multer.File, @Res() res: Response) {
     try {
       const curso = await this.cursoService.findOne(+id);
 
       if (curso.arquivo) {
         const filePath = join(process.cwd(), 'uploads', curso.arquivo);
-        console.log(filePath)
-        unlink(filePath, (err) => {
-          if (err) {
-            console.error('Erro ao deletar o arquivo:', err);
-          } else {
-            console.log('Arquivo deletado com sucesso:', curso.arquivo);
-        }})}
+        try {
+          await unlink(filePath);
+        } catch (err) {
+          console.log('Algo inesperado ocorreu!');
+        }
+      }
 
-      const retorno = await this.cursoService.update({...updateCursoDto.data,  arquivo: file?.filename || null});
-
+      const retorno = await this.cursoService.update({...updateCursoDto,  arquivo: file?.filename || null});
+      
       if (retorno) {
         return res.status(201).json({
           message: 'Curso Atualizado',
@@ -130,13 +129,11 @@ export class CursoController {
 
       if (curso.arquivo) {
         const filePath = join(process.cwd(), 'uploads', curso.arquivo);
-        console.log(filePath)
-        unlink(filePath, (err) => {
-          if (err) {
-            console.error('Erro ao deletar o arquivo:', err);
-          } else {
-            console.log('Arquivo deletado com sucesso:', curso.arquivo);
-        }})}
+        try {
+          await unlink(filePath);
+        } catch (err) {
+          console.error('Erro ao deletar o arquivo', err);
+        }
 
       const retorno = this.cursoService.remove(+id);
 
@@ -149,6 +146,7 @@ export class CursoController {
           message: 'Não foi possivel deletar o curso',
         });
       }
+    }
     } catch (error) {
       return res.status(500).json({
         message: 'Erro interno no servidor',

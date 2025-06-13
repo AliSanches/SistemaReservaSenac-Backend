@@ -48,9 +48,10 @@ export class CursoService {
   }
 
   async update(updateCursoDto: UpdateCursoDto) {
+    const convertIdCurso = Number(updateCursoDto.id);
     const res = await this.prisma.curso.update({
       where: {
-        id: updateCursoDto.id,
+        id: convertIdCurso,
       },
       data: {
         nome: updateCursoDto.nome,
