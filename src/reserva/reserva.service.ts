@@ -1,18 +1,32 @@
-import { Injectable }       from '@nestjs/common';
-import { CreateReservaDto } from './dto/create-reserva.dto';
-import { UpdateReservaDto } from './dto/update-reserva.dto';
-import { PrismaService }    from 'src/database/Prisma.service';
+import { Injectable }          from '@nestjs/common';
+import { CreateReservaDto }    from './dto/create-reserva.dto';
+import { UpdateReservaDto }    from './dto/update-reserva.dto';
+import { PrismaService }       from 'src/database/Prisma.service';
+import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class ReservaService {
-  constructor(private prisma: PrismaService) {}
+  constructor(public prisma: PrismaService) {}
 
-  async create(createReservaDto: CreateReservaDto) {
+  async create(createReservaDto: CreateReservaDto): Promise<any> {
     const convertIdCurso = Number(createReservaDto.idCurso);
     const convertIdTurma = Number(createReservaDto.idTurma);
     const convertIdSala = Number(createReservaDto.idSala);
 
-    await this.prisma.reserva.create({
+    const isDis = await this.verifyReserva(
+      convertIdSala,
+      true,
+      createReservaDto.dataInicio,
+      createReservaDto.dataTermino,
+      createReservaDto.horaInicio,
+      createReservaDto.horaTermino
+    );
+
+    if (!isDis.isDisponivel) {
+      throw new BadRequestException('Horário indisponível para reserva.');
+    }
+
+    const res = await this.prisma.reserva.create({
       data: {
         idCurso: convertIdCurso,
         idTurma: convertIdTurma,
@@ -21,9 +35,53 @@ export class ReservaService {
         dataTermino: createReservaDto.dataTermino,
         horaInicio: createReservaDto.horaInicio,
         horaTermino: createReservaDto.horaTermino,
-        situacao: createReservaDto.situacao,
+        situacao: true,
       },
     });
+
+    return res;
+  }
+
+  async verifyReserva(
+    idSala: number,
+    situacao: boolean,
+    dataInicio: string,
+    dataFinal: string,
+    horaInicio: string,
+    horaTermino: string): Promise<{isDisponivel: boolean, reserva:any}> {
+    const reserva = await this.prisma.reserva.findFirst({
+      where: {
+        idSala: idSala,
+        situacao: situacao,
+        AND: [
+          {
+            dataInicio: { lte: dataFinal },
+          },
+          {
+            dataTermino: { gte: dataInicio },
+          },
+        ],
+        OR: [
+          {
+            horaInicio: { lte: horaInicio },
+            horaTermino: { gt: horaInicio },
+          },
+          {
+            horaInicio: { lt: horaTermino },
+            horaTermino: { gte: horaTermino },
+          },
+          {
+            horaInicio: { gte: horaInicio },
+            horaTermino: { lte: horaTermino },
+          },
+        ],
+      }
+    });
+
+    return{
+      isDisponivel: !reserva,
+      reserva: reserva,
+    };;
   }
 
   async findAll(skip: number) {
@@ -33,6 +91,8 @@ export class ReservaService {
       },
       include: {
         cursos: true,
+        turmas: true,
+        salas: true,
       },
       take: 6,
       skip: skip,
@@ -60,7 +120,7 @@ export class ReservaService {
         dataTermino: updateReservaDto.dataTermino,
         horaInicio: updateReservaDto.horaInicio,
         horaTermino: updateReservaDto.horaTermino,
-        situacao: updateReservaDto.situacao,
+        situacao: true,
       },
     });
   }

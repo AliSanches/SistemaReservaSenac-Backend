@@ -19,22 +19,18 @@ import {
     constructor(private readonly reservaService: ReservaService) {}
   
     @Post()
-    create(@Body() createReservaDto: { data: CreateReservaDto }, @Res() res: Response) {
+    async create(@Body() createReservaDto: { data: CreateReservaDto }, @Res() res: Response) {
       try {
-        const retorno = this.reservaService.create(createReservaDto.data);
+        const retorno = await this.reservaService.create(createReservaDto.data);
   
         if (retorno) {
           return res.status(201).json({
             message: 'Reserva Cadastrada',
           });
-        } else {
-          return res.status(400).json({
-            message: 'Não foi possivel criar a reserva',
-          });
         }
       } catch (error) {
-        return res.status(500).json({
-          message: 'Erro interno no servidor',
+        return res.status(400).json({
+          message: error.response?.message || error.message || 'Erro ao reservar',
         });
       }
     }

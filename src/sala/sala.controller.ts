@@ -29,7 +29,7 @@ export class SalaController {
         });
       } else {
         return res.status(400).json({
-          message: 'Não foi possivel criar a sala',
+          message: 'Já existe uma reserva com essas informações',
         });
       }
     } catch (error) {
@@ -118,12 +118,12 @@ export class SalaController {
         });
       } else {
         return res.status(400).json({
-          message: 'Não foi possivel deletar a sala',
+          message: 'Não foi possivel deletar a sala, pois existem vinculos',
         });
       }
     } catch (error) {
       return res.status(500).json({
-        message: 'Erro interno no servidor',
+        message: error.response?.message || error.message || 'Erro ao excluir',
       });
     }
   }

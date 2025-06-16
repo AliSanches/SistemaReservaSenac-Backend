@@ -1,7 +1,9 @@
-import { Injectable }       from '@nestjs/common';
-import { CreateSalaDto }    from './dto/create-sala.dto';
-import { UpdateSalaDto }    from './dto/update-sala.dto';
-import { PrismaService }    from 'src/database/Prisma.service';
+import { Injectable }          from '@nestjs/common';
+import { CreateSalaDto }       from './dto/create-sala.dto';
+import { UpdateSalaDto }       from './dto/update-sala.dto';
+import { PrismaService }       from 'src/database/Prisma.service';
+import { ReservaService }      from 'src/reserva/reserva.service';
+import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class SalaService {
@@ -27,7 +29,20 @@ export class SalaService {
     if (convertIdTurma !== null) {
       const dadosTurma = await this.findUniqueTurmaRefCurso(convertIdCurso);
 
-      await this.createReserva(createSalaDto, dadosSala, dadosTurma.turma, true);
+      const verifyRes = new ReservaService(this.prisma);
+
+      const res = await verifyRes.verifyReserva(
+        dadosSala.id,
+        true,
+        dadosTurma.dataInicio,
+        dadosTurma.dataFinal,
+        dadosTurma.entrada,
+        dadosTurma.saida,
+      );
+
+      if (!res.isDisponivel) {
+        await this.createReserva(createSalaDto, dadosSala, dadosTurma, true);
+      }
     }
   }
 
@@ -84,10 +99,7 @@ export class SalaService {
         idCurso: id
       }
     });
-
-    const count = await this.prisma.sala.count({});
-
-    return { turma, count };
+    return turma;
   }
 
   async findAllTurmasRefCurso(id: number) {
@@ -105,6 +117,37 @@ export class SalaService {
   async update(id: number, updateSalaDto: UpdateSalaDto): Promise<void> {
     const convertIdCurso = Number(updateSalaDto.idCurso);
     const convertTurma = Number(updateSalaDto.idTurma);
+
+    const dadosTurma = await this.findUniqueTurmaRefCurso(convertIdCurso);
+    const verifyRes = new ReservaService(this.prisma);
+    
+    const res = await verifyRes.verifyReserva(
+      id,
+      true,
+      dadosTurma.dataInicio,
+      dadosTurma.dataFinal,
+      dadosTurma.entrada,
+      dadosTurma.saida,
+    );
+
+    // True se a sala estiver disponivel
+    if (!res.isDisponivel) {
+      await this.prisma.reserva.update({
+        where: {
+          id: res.reserva.id
+        },
+        data: {
+          idCurso: convertIdCurso,
+          idTurma: convertTurma,
+          idSala: id,
+          dataInicio: dadosTurma.dataInicio,
+          dataTermino: dadosTurma.dataFinal,
+          horaInicio: dadosTurma.entrada,
+          horaTermino: dadosTurma.saida,
+          situacao: true,
+        }
+      })
+    }
 
     await this.prisma.sala.update({
       where: {
@@ -125,15 +168,15 @@ export class SalaService {
   async remove(id: number) {
     const convertedId = Number(id);
 
-    // so apaga a reserva se houver curso e turma
-    const res = await this.findUniqueTurma(convertedId);
-    // se não apenas apaga a sala
-    if (res.idCurso !== null) {
-      await this.prisma.reserva.deleteMany({
+    // Não é possivel apagar uma sala se essa sala possuir mais vinculos com reserva
+    const res = await this.prisma.reserva.findFirst({
       where: {
-        idSala: convertedId,
+        idSala: id
       }
     })
+
+    if (res.id) {
+      throw new BadRequestException('Não é possível excluir a sala pois já existe vinculos!');
     }
 
     await this.prisma.sala.delete({
