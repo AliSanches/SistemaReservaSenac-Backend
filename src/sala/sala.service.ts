@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { CreateSalaDto } from './dto/create-sala.dto';
-import { UpdateSalaDto } from './dto/update-sala.dto';
-import { PrismaService } from 'src/database/Prisma.service';
+import { Injectable }       from '@nestjs/common';
+import { CreateSalaDto }    from './dto/create-sala.dto';
+import { UpdateSalaDto }    from './dto/update-sala.dto';
+import { PrismaService }    from 'src/database/Prisma.service';
 
 @Injectable()
 export class SalaService {
@@ -11,7 +11,7 @@ export class SalaService {
     const convertIdCurso = createSalaDto.idCurso ? Number(createSalaDto.idCurso) : null;
     const convertIdTurma = createSalaDto.idTurma ? Number(createSalaDto.idTurma) : null;
 
-    await this.prisma.sala.create({
+    const dadosSala = await this.prisma.sala.create({
       data: {
         ...(convertIdCurso !== null && { idCurso: convertIdCurso }),
         ...(convertIdTurma !== null && { idTurma: convertIdTurma }),
@@ -21,6 +21,31 @@ export class SalaService {
         tipoSala: createSalaDto.tipoSala,
         caseArmario: createSalaDto.caseArmario,
         comportaNotebook: createSalaDto.comportaNotebook,
+      },
+    });
+
+    if (convertIdTurma !== null) {
+      const dadosTurma = await this.findUniqueTurmaRefCurso(convertIdCurso);
+
+      await this.createReserva(createSalaDto, dadosSala, dadosTurma.turma, true);
+    }
+  }
+
+  async createReserva(dadosSala: CreateSalaDto, retornoDadosSala, dadosTurma, reservado: boolean) {
+    const convertIdCurso = dadosSala.idCurso ? Number(dadosSala.idCurso) : null;
+    const convertIdTurma = dadosSala.idTurma ? Number(dadosSala.idTurma) : null;
+    const convertIdSala = retornoDadosSala.id ? Number(retornoDadosSala.id) : null;
+
+    await this.prisma.reserva.create({
+     data: {
+        idCurso: convertIdCurso,
+        idTurma: convertIdTurma,
+        idSala:  convertIdSala,
+        dataInicio: dadosTurma.dataInicio,
+        dataTermino: dadosTurma.dataFinal,
+        horaInicio: dadosTurma.entrada,
+        horaTermino: dadosTurma.saida,
+        situacao: reservado,
       },
     });
   }
@@ -41,6 +66,28 @@ export class SalaService {
     const count = await this.prisma.sala.count({});
 
     return { sala, count };
+  }
+
+  async findUniqueTurma(id: number) {
+    const turma = await this.prisma.turma.findFirst({
+      where: {
+        id: id
+      }
+    });
+
+    return turma;
+  }
+
+  async findUniqueTurmaRefCurso(id: number) {
+    const turma = await this.prisma.turma.findFirst({
+      where: {
+        idCurso: id
+      }
+    });
+
+    const count = await this.prisma.sala.count({});
+
+    return { turma, count };
   }
 
   async findAllTurmasRefCurso(id: number) {
@@ -76,12 +123,24 @@ export class SalaService {
   }
 
   async remove(id: number) {
-    const converTurma = Number(id);
+    const convertedId = Number(id);
+
+    // so apaga a reserva se houver curso e turma
+    const res = await this.findUniqueTurma(convertedId);
+    // se não apenas apaga a sala
+    if (res.idCurso !== null) {
+      await this.prisma.reserva.deleteMany({
+      where: {
+        idSala: convertedId,
+      }
+    })
+    }
 
     await this.prisma.sala.delete({
       where: {
-        id: converTurma,
+        id: convertedId,
       },
     });
+
   }
 }

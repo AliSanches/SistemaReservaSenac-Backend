@@ -91,26 +91,14 @@ export class CursoController {
       },
     }),
   }))
-  async update(@Param('id') id: number, @Body() updateCursoDto: UpdateCursoDto,@UploadedFile() file: Express.Multer.File, @Res() res: Response) {
+  async update(@Param('id') id: number, @Body() updateCursoDto: UpdateCursoDto, @UploadedFile() file: Express.Multer.File, @Res() res: Response) {
     try {
       const curso = await this.cursoService.findOne(+id);
 
       if (curso.arquivo) {
         const filePath = join(process.cwd(), 'uploads', curso.arquivo);
-        console.log(filePath)
-        unlink(filePath, (err) => {
-          if (err) {
-            console.error('Erro ao deletar o arquivo:', err);
-          } else {
-            console.log('Arquivo deletado com sucesso:', curso.arquivo);
-        }})
+        await unlink(filePath);
       }
-
-      
-      console.log(updateCursoDto)
-
-      // Verificar a nova imagem 
-      const retorno = await this.cursoService.update({...updateCursoDto.data, arquivo: file?.filename || null});
 
       const retorno = await this.cursoService.update({...updateCursoDto,  arquivo: file?.filename || null});
       
@@ -137,13 +125,8 @@ export class CursoController {
 
       if (curso.arquivo) {
         const filePath = join(process.cwd(), 'uploads', curso.arquivo);
-        console.log(filePath)
-        unlink(filePath, (err) => {
-          if (err) {
-            console.error('Erro ao deletar o arquivo:', err);
-          } else {
-            console.log('Arquivo deletado com sucesso:', curso.arquivo);
-      }})}
+        await unlink(filePath);
+      }
 
       const retorno = await this.cursoService.remove(+id);
 
@@ -156,8 +139,6 @@ export class CursoController {
           message: 'Não foi possivel deletar o curso',
         });
       }
-    }
-  }
     } catch (error) {
       return res.status(500).json({
         message: 'Erro interno no servidor',
