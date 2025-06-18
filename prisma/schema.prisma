@@ -50,6 +50,8 @@ model sala {
   caseArmario           String              @db.Text
   comportaNotebook      String              @db.Text
   reserva               reserva[]
+
+  @@index([id, idCurso, idTurma])
 }
 
 model reserva {

@@ -40,6 +40,15 @@ export class TurmaService {
     return { turma, count };
   }
 
+  async getInfTurma(id: number) {
+    const turma = await this.prisma.turma.findUnique({
+     where: {
+      id: id
+     }
+    });
+    return turma;
+  }
+
   async update(id: number, updateTurmaDto: UpdateTurmaDto): Promise<void> {
     const convertIdCurso = Number(updateTurmaDto.idCurso);
     const convertTurma = Number(updateTurmaDto.turma);

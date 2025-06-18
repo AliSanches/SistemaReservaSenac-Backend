@@ -40,7 +40,8 @@ export class SalaService {
         dadosTurma.saida,
       );
 
-      if (!res.isDisponivel) {
+      // se estiver disponivel retorna true
+      if (res.isDisponivel) {
         await this.createReserva(createSalaDto, dadosSala, dadosTurma, true);
       }
     }
@@ -165,7 +166,7 @@ export class SalaService {
     });
   }
 
-  async remove(id: number) {
+  async remove(id: number): Promise<any> {
     const convertedId = Number(id);
 
     // Não é possivel apagar uma sala se essa sala possuir mais vinculos com reserva
@@ -175,15 +176,16 @@ export class SalaService {
       }
     })
 
-    if (res.id) {
+    if (res) {
       throw new BadRequestException('Não é possível excluir a sala pois já existe vinculos!');
     }
 
-    await this.prisma.sala.delete({
+    const response = await this.prisma.sala.delete({
       where: {
         id: convertedId,
       },
     });
 
+    return response;
   }
 }

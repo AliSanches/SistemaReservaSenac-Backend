@@ -108,9 +108,9 @@ export class SalaController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: number, @Res() res: Response) {
+  async remove(@Param('id') id: number, @Res() res: Response) {
     try {
-      const retorno = this.salaService.remove(+id);
+      const retorno = await this.salaService.remove(+id);
 
       if (retorno) {
         return res.status(201).json({
@@ -122,7 +122,7 @@ export class SalaController {
         });
       }
     } catch (error) {
-      return res.status(500).json({
+      return res.status(400).json({
         message: error.response?.message || error.message || 'Erro ao excluir',
       });
     }

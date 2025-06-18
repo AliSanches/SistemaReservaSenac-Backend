@@ -64,6 +64,27 @@ export class TurmaController {
     }
   }
 
+  @Get(':id')
+  async findUnique(@Param('id') id: number, @Res() res: Response) {
+    try {
+      const retorno = await this.turmaService.getInfTurma(+id);
+
+      if (retorno) {
+        return res.status(200).json({
+          retorno,
+        });
+      } else if (retorno) {
+        return res.status(400).json({
+          message: 'Não foi possivel carregar os dados',
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        message: 'Erro interno no servidor',
+      });
+    }
+  }
+
   @Put(':id')
   update(
     @Param('id') id: number,

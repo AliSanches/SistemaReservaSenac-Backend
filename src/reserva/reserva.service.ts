@@ -60,22 +60,24 @@ export class ReservaService {
           {
             dataTermino: { gte: dataInicio },
           },
+          {
+            OR: [
+              {
+                horaInicio: { lte: horaInicio },
+                horaTermino: { gt: horaInicio },
+              },
+              {
+                horaInicio: { lt: horaTermino },
+                horaTermino: { gte: horaTermino },
+              },
+              {
+                horaInicio: { gte: horaInicio },
+                horaTermino: { lte: horaTermino },
+              },
+            ],
+          },
         ],
-        OR: [
-          {
-            horaInicio: { lte: horaInicio },
-            horaTermino: { gt: horaInicio },
-          },
-          {
-            horaInicio: { lt: horaTermino },
-            horaTermino: { gte: horaTermino },
-          },
-          {
-            horaInicio: { gte: horaInicio },
-            horaTermino: { lte: horaTermino },
-          },
-        ],
-      }
+      },
     });
 
     return{
@@ -126,11 +128,11 @@ export class ReservaService {
   }
 
   async remove(id: number) {
-    const converTurma = Number(id);
+    const convertedID = Number(id);
 
     await this.prisma.reserva.delete({
       where: {
-        id: converTurma,
+        id: convertedID,
       },
     });
   }
