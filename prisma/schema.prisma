@@ -8,7 +8,7 @@ datasource db {
 }
 
 model file {
-  id                    Int @id @default(autoincrement())
+  id                    Int               @id @default(autoincrement())
   fileName              String
   contentLength         Decimal
   contentType           String
@@ -16,7 +16,7 @@ model file {
 }
 
 model curso {
-  id                    Int @id @default(autoincrement())
+  id                    Int                @id @default(autoincrement())
   nome                  String
   categoria             String
   arquivo               String
@@ -26,14 +26,14 @@ model curso {
 }
 
 model turma {
-  id                    Int          @id @default(autoincrement())
+  id                    Int                 @id @default(autoincrement())
   idCurso               Int     
-  cursos                curso        @relation(fields: [idCurso], references: [id])
+  cursos                curso               @relation(fields: [idCurso], references: [id])
   turma                 Int          
-  dataInicio            String       @db.Text
-  dataFinal             String       @db.Text
-  entrada               String       @db.Text
-  saida                 String       @db.Text
+  dataInicio            String              @db.Text
+  dataFinal             String              @db.Text
+  entrada               String              @db.Text
+  saida                 String              @db.Text
   sala                  sala[]
   reserva               reserva[]
 }
@@ -41,9 +41,9 @@ model turma {
 model sala {
   id                    Int                 @id @default(autoincrement())
   idCurso               Int?      
-  cursos                curso?               @relation(fields: [idCurso], references: [id])
+  cursos                curso?              @relation(fields: [idCurso], references: [id])
   idTurma               Int?                  
-  turmas                turma?               @relation(fields: [idTurma], references: [id])
+  turmas                turma?              @relation(fields: [idTurma], references: [id])
   numeroSala            String
   capacidade            String
   tipoSala              String              @db.Text

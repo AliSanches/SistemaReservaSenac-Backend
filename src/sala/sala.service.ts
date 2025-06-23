@@ -116,39 +116,42 @@ export class SalaService {
   }
 
   async update(id: number, updateSalaDto: UpdateSalaDto): Promise<void> {
-    const convertIdCurso = Number(updateSalaDto.idCurso);
-    const convertTurma = Number(updateSalaDto.idTurma);
+    const convertIdCurso = updateSalaDto.idCurso ? Number(updateSalaDto.idCurso) : null;
+    const convertIdTurma = updateSalaDto.idTurma ? Number(updateSalaDto.idTurma) : null;
 
-    const dadosTurma = await this.findUniqueTurmaRefCurso(convertIdCurso);
-    const verifyRes = new ReservaService(this.prisma);
-    
-    const res = await verifyRes.verifyReserva(
-      id,
-      true,
-      dadosTurma.dataInicio,
-      dadosTurma.dataFinal,
-      dadosTurma.entrada,
-      dadosTurma.saida,
-    );
+    if (convertIdTurma !== null) {
+      const dadosTurma = await this.findUniqueTurmaRefCurso(convertIdCurso);
+      const verifyRes = new ReservaService(this.prisma);
+      
+      const res = await verifyRes.verifyReserva(
+        id,
+        true,
+        dadosTurma.dataInicio,
+        dadosTurma.dataFinal,
+        dadosTurma.entrada,
+        dadosTurma.saida,
+      );
 
-    // True se a sala estiver disponivel
-    if (!res.isDisponivel) {
-      await this.prisma.reserva.update({
-        where: {
-          id: res.reserva.id
-        },
-        data: {
-          idCurso: convertIdCurso,
-          idTurma: convertTurma,
-          idSala: id,
-          dataInicio: dadosTurma.dataInicio,
-          dataTermino: dadosTurma.dataFinal,
-          horaInicio: dadosTurma.entrada,
-          horaTermino: dadosTurma.saida,
-          situacao: true,
-        }
-      })
+      // True se a sala estiver disponivel
+      if (!res.isDisponivel) {
+        await this.prisma.reserva.update({
+          where: {
+            id: res.reserva.id
+          },
+          data: {
+            idCurso: convertIdCurso,
+            idTurma: convertIdTurma,
+            idSala: id,
+            dataInicio: dadosTurma.dataInicio,
+            dataTermino: dadosTurma.dataFinal,
+            horaInicio: dadosTurma.entrada,
+            horaTermino: dadosTurma.saida,
+            situacao: true,
+          }
+        })
+      }
     }
+    
 
     await this.prisma.sala.update({
       where: {
@@ -156,7 +159,7 @@ export class SalaService {
       },
       data: {
         idCurso: convertIdCurso,
-        idTurma: convertTurma,
+        idTurma: convertIdTurma,
         numeroSala: updateSalaDto.numeroSala,
         capacidade: updateSalaDto.capacidade,
         tipoSala: updateSalaDto.tipoSala,

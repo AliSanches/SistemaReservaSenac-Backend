@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable }    from '@nestjs/common';
 import { PrismaService } from 'src/database/Prisma.service';
-import { Request } from 'express';
+import { Request }       from 'express';
 
 @Injectable()
 export class FilesService {

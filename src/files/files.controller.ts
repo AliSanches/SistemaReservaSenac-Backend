@@ -4,9 +4,8 @@ import {
   UseInterceptors,
   UploadedFile,
   Req,
-  Res
 } from '@nestjs/common';
-import { FilesService } from './files.service';
+import { FilesService }    from './files.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('files')
