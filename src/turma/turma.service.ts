@@ -30,6 +30,7 @@ export class TurmaService {
       },
       include: {
         cursos: true,
+        sala: true,
       },
       take: 6,
       skip: skip,

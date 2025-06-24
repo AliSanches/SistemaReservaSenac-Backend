@@ -40,6 +40,13 @@ export class CursoService {
       },
       take: 6,
       skip: skip,
+      select: {
+        id: true,
+        nome: true,
+        categoria: true,
+        arquivo: true,
+        turma: true,
+      }
     });
 
     const count = await this.prisma.curso.count({});

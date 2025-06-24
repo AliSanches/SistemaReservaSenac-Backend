@@ -49,7 +49,7 @@ export class SalaService {
 
   async createReserva(dadosSala: CreateSalaDto, retornoDadosSala, dadosTurma, reservado: boolean) {
     const convertIdCurso = dadosSala.idCurso ? Number(dadosSala.idCurso) : null;
-    const convertIdTurma = dadosSala.idTurma ? Number(dadosSala.idTurma) : null;
+    const convertIdTurma = dadosSala.idTurma ? Number(dadosTurma.id) : null;
     const convertIdSala = retornoDadosSala.id ? Number(retornoDadosSala.id) : null;
 
     await this.prisma.reserva.create({
@@ -74,6 +74,7 @@ export class SalaService {
       include: {
         cursos: true,
         turmas: true,
+        reserva: true,
       },
       take: 6,
       skip: skip,
