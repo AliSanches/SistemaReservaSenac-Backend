@@ -5,17 +5,17 @@ import { PrismaService } from 'src/database/Prisma.service';
 
 @Injectable()
 export class CursoService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createCursoDto: CreateCursoDto) {
     const res = await this.prisma.curso.create({
       data: {
         nome: createCursoDto.nome,
         categoria: createCursoDto.categoria,
-        arquivo: createCursoDto.arquivo,
+        arquivo: '',
       },
     });
-    return res
+    return res;
   }
 
   async findOne(id: number) {
@@ -27,7 +27,7 @@ export class CursoService {
         nome: true,
         categoria: true,
         arquivo: true
-      } 
+      }
     });
 
     return curso;
@@ -54,16 +54,15 @@ export class CursoService {
     return { curso, count };
   }
 
-  async update(updateCursoDto: UpdateCursoDto) {
-    const convertIdCurso = Number(updateCursoDto.id);
+  async update(id: number, updateCursoDto: UpdateCursoDto) {
     const res = await this.prisma.curso.update({
       where: {
-        id: convertIdCurso,
+        id
       },
       data: {
         nome: updateCursoDto.nome,
         categoria: updateCursoDto.categoria,
-        arquivo: updateCursoDto.arquivo,
+        arquivo: '',
       },
     });
     return res;
